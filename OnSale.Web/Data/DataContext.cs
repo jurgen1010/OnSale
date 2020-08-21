@@ -11,14 +11,23 @@ namespace OnSale.Web.Data
 
         //Mapeo el modelo con DbSet<>, e indico dentro <> a cual entity deseo mapear, por cada entidad
         // es muy importante crearla en el DataContext
+        public DbSet<Category> Categories { get; set; }
         public DbSet<City> Cities { get; set; }
         public DbSet<Country> Countries { get; set; }
         public DbSet<Department> Departments { get; set; }
+        public DbSet<Product> Products { get; set; }
+        public DbSet<ProductImage> ProductImages { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
             //Creamos indices para cada entidad con este bloque de Codigo indico que el atributo Name de la entidad Country en unico
+            modelBuilder.Entity<Category>()
+            .HasIndex(t => t.Name)
+            .IsUnique();
+
+
             modelBuilder.Entity<Country>()
             .HasIndex(t => t.Name)
             .IsUnique();
@@ -30,6 +39,11 @@ namespace OnSale.Web.Data
             modelBuilder.Entity<Department>()
             .HasIndex(t => t.Name)
             .IsUnique();
+
+            modelBuilder.Entity<Product>()
+            .HasIndex(t => t.Name)
+            .IsUnique();
+
 
 
 
