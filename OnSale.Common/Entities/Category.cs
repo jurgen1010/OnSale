@@ -18,7 +18,7 @@ namespace OnSale.Common.Entities
         //TODO: Pending to put the correct paths
         [Display(Name = "Image")]
         public string ImageFullPath => ImageId == Guid.Empty //Creamos una propiedad de lectura donde van a estar todas las imagenes 
-            ? $"https://localhost:44390/images/noimage.png" //Si no hay imagen vamos a guardar una imagen llamada noimage.png
+            ? $"https://localhost:44312/images/noimage.png" //Si no hay imagen vamos a guardar una imagen llamada noimage.png
             : $"https://onsale.blob.core.windows.net/categories/{ImageId}"; // las imagenes quedaran en un blob storage y le enviamos el codigo de la imagen{ImageId}
     }
 
