@@ -11,6 +11,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using OnSale.Web.Data;
+using OnSale.Web.Helpers;
 
 namespace OnSale.Web
 {
@@ -33,12 +34,15 @@ namespace OnSale.Web
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
 
+            //Inyectamos la conexion a la base de datos
             services.AddDbContext<DataContext>(cfg =>
             {
                 cfg.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"));
             });
 
-            services.AddTransient<SeedDb>();//Inyectamos el SeedDb
+            services.AddTransient<SeedDb>();//Inyectamos el SeedDb, alimentador de la base de datos
+            services.AddScoped<IBlobHelper, BlobHelper>(); //Inyectamos la configuracion al blobStorage (al llamar una instancia de IBlobHelper, retornara un BlobHelper)
+            services.AddScoped<IConverterHelper, ConverterHelper>();//Inyectamos el convertidor de CategoryViewModel <=> Category (al llamar una instancia de IConverterHelper, retornara un ConverterHelper)
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
         }
 
