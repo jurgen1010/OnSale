@@ -36,7 +36,7 @@ namespace OnSale.Common.Entities
         //TODO: Pending to put the correct paths
         [Display(Name = "Image")]
         public string ImageFullPath => ProductImages == null || ProductImages.Count == 0//Indicamos que si el producto no tiene imagenes, mostramos en pantalla que no tiene imagenes
-            ? $"https://localhost:44390/images/noimage.png"
+            ? $"https://localhost:44312/images/noimage.png"
             : ProductImages.FirstOrDefault().ImageFullPath;//sino diremos que de la coleccion ProductImages la imagen principal
     }
 
