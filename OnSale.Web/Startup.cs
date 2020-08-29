@@ -43,6 +43,7 @@ namespace OnSale.Web
             services.AddTransient<SeedDb>();//Inyectamos el SeedDb, alimentador de la base de datos
             services.AddScoped<IBlobHelper, BlobHelper>(); //Inyectamos la configuracion al blobStorage (al llamar una instancia de IBlobHelper, retornara un BlobHelper)
             services.AddScoped<IConverterHelper, ConverterHelper>();//Inyectamos el convertidor de CategoryViewModel <=> Category (al llamar una instancia de IConverterHelper, retornara un ConverterHelper)
+            services.AddScoped<ICombosHelper, CombosHelper>();
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
         }
 
