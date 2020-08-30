@@ -13,7 +13,7 @@ namespace OnSale.Web.Models
         public string Username { get; set; }
 
         [Required]
-        [MinLength(6,ErrorMessage = "no more than 6 characters allowed")]
+        [MinLength(6)]
         public string Password { get; set; }
 
         public bool RememberMe { get; set; }

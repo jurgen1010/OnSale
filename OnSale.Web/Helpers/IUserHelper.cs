@@ -25,8 +25,9 @@ namespace OnSale.Web.Helpers
         //validar si se enrolo
         Task<bool> IsUserInRoleAsync(User user, string roleName);
         Task<SignInResult> LoginAsync(LoginViewModel model);
-
         Task LogoutAsync();
+        Task<SignInResult> ValidatePasswordAsync(User user, string password);//Para validar si es valido el user
+
 
 
     }
