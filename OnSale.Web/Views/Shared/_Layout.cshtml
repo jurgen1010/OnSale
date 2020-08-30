@@ -33,10 +33,27 @@
                     <li><a asp-area="" asp-controller="Home" asp-action="Index">Home</a></li>
                     <li><a asp-area="" asp-controller="Home" asp-action="About">About</a></li>
                     <li><a asp-area="" asp-controller="Home" asp-action="Contact">Contact</a></li>
-                    <li><a asp-area="" asp-controller="Countries" asp-action="Index">Countries</a></li>
-                    <li><a asp-area="" asp-controller="Categories" asp-action="Index">Categories</a></li>
-                    <li><a asp-area="" asp-controller="Products" asp-action="Index">Products</a></li>
+                    @*Si es usuario esta autenticado y pertenecenal roll administrador podra ingresar a los controladores Countries, categories y products*@
+                    @if (User.Identity.IsAuthenticated && User.IsInRole("Admin"))
+                    {
+                        <li><a asp-area="" asp-controller="Countries" asp-action="Index">Countries</a></li>
+                        <li><a asp-area="" asp-controller="Categories" asp-action="Index">Categories</a></li>
+                        <li><a asp-area="" asp-controller="Products" asp-action="Index">Products</a></li>
+                    }
                 </ul>
+                @*A la derecha**@
+            <ul class="nav navbar-nav navbar-right">
+                @*Si el usuario esta autenticado*@
+                @if (User.Identity.IsAuthenticated)
+                {
+                    <li><a asp-area="" asp-controller="Account" asp-action="ChangeUser">@User.Identity.Name</a></li>
+                    <li><a asp-area="" asp-controller="Account" asp-action="Logout">Logout</a></li>
+                }
+                else
+                {
+                    <li><a asp-area="" asp-controller="Account" asp-action="Login">Login</a></li>
+                }
+            </ul>
             </div>
         </div>
     </nav>

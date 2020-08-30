@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using OnSale.Common.Entities;
 using OnSale.Web.Data;
@@ -9,6 +10,8 @@ using System.Threading.Tasks;
 
 namespace OnSale.Web.Controllers
 {
+
+    [Authorize(Roles = "Admin")]//Solo tendra acceso el administrador a este controlador
     public class CategoriesController : Controller
     {
         private readonly DataContext _context; //Empiezan con underLine porque son atributos privados
