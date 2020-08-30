@@ -15,6 +15,9 @@ namespace OnSale.Common.Entities
         [JsonIgnore]//Al generar la respuesta del servicio no ira este campo
         [NotMapped]//con dicha notacion indico que no quiero que se Mapee este campo en la DB
         public int IdDepartment { get; set; }
+        [JsonIgnore]//Para no generar una redundancia ciclica en el API
+        public Department Department { get; set; }//Una ciudad pertenece a un departamento
+
 
     }
 }

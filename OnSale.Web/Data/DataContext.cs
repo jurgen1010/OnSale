@@ -34,18 +34,24 @@ namespace OnSale.Web.Data
             .HasIndex(t => t.Name)
             .IsUnique();
 
+            modelBuilder.Entity<Country>(cou =>
+            {
+                cou.HasIndex("Name").IsUnique();
+                cou.HasMany(c => c.Departments).WithOne(d => d.Country).OnDelete(DeleteBehavior.Cascade);//Un pais tiene muchos departamentos con un pais, cuando se elimine un pais tenga un comportamiento en cascada
+            });
 
-            modelBuilder.Entity<Country>()
-            .HasIndex(t => t.Name)
-            .IsUnique();
+            modelBuilder.Entity<Department>(dep =>
+            {
+                dep.HasIndex("Name", "CountryId").IsUnique();//Creamos un indice compuesto, me permitira validar departamentos unicos pero dentro un unico pais
+                dep.HasOne(d => d.Country).WithMany(c => c.Departments).OnDelete(DeleteBehavior.Cascade);//Un departamento tiene un pais con muchos departamentos y el comportamiento de borrado sera en cascada
+            });
 
-            modelBuilder.Entity<City>()
-            .HasIndex(t => t.Name)
-            .IsUnique();
+            modelBuilder.Entity<City>(cit =>
+            {
+                cit.HasIndex("Name", "DepartmentId").IsUnique();//Creamos un indice compuesto, me permitira validar ciudades unicos pero dentro un unico departamento
+                cit.HasOne(c => c.Department).WithMany(d => d.Cities).OnDelete(DeleteBehavior.Cascade);
+            });
 
-            modelBuilder.Entity<Department>()
-            .HasIndex(t => t.Name)
-            .IsUnique();
 
             modelBuilder.Entity<Product>()
             .HasIndex(t => t.Name)
