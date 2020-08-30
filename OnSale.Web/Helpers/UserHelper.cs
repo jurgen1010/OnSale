@@ -1,8 +1,10 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using OnSale.Common.Enums;
 using OnSale.Web.Data;
 using OnSale.Web.Data.Entities;
 using OnSale.Web.Models;
+using System;
 using System.Threading.Tasks;
 
 namespace OnSale.Web.Helpers
@@ -28,6 +30,34 @@ namespace OnSale.Web.Helpers
         public async Task<IdentityResult> AddUserAsync(User user, string password)
         {
             return await _userManager.CreateAsync(user, password);//Llamamos a clase UserManager para usar el metodo que nos permite crear el usuario
+        }
+
+        public async Task<User> AddUserAsync(AddUserViewModel model, Guid imageId, UserType userType)
+        {
+            User user = new User
+            {
+                Address = model.Address,
+                Document = model.Document,
+                Email = model.Username,
+                FirstName = model.FirstName,
+                LastName = model.LastName,
+                ImageId = imageId,
+                PhoneNumber = model.PhoneNumber,
+                City = await _context.Cities.FindAsync(model.CityId),//Encontramos la ciudad por medio del Id que nos trae la vista AddUserViewModel
+                UserName = model.Username,
+                UserType = userType
+            };
+
+            IdentityResult result = await _userManager.CreateAsync(user, model.Password);//Creamos el User
+            if (result != IdentityResult.Success)//Validamos que si haya sido posible la creacion
+            {
+                return null;
+            }
+
+            User newUser = await GetUserAsync(model.Username);//Obtenemos el user
+            await AddUserToRoleAsync(newUser, user.UserType.ToString());//Luego le creamos un roll a este user
+            return newUser;//Retornemos le nuevo usuario
+
         }
 
         public async Task AddUserToRoleAsync(User user, string roleName)
