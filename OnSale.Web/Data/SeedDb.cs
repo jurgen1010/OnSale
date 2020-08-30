@@ -1,4 +1,7 @@
 ﻿using OnSale.Common.Entities;
+using OnSale.Common.Enums;
+using OnSale.Web.Data.Entities;
+using OnSale.Web.Helpers;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -9,16 +12,60 @@ namespace OnSale.Web.Data
     {
 
         private readonly DataContext _context;
-        public SeedDb(DataContext context)
+        private readonly IUserHelper _userHelper;
+        public SeedDb(DataContext context, IUserHelper userHelper)
         {
-            this._context = context;
+            _context = context;
+            _userHelper = userHelper;
         }
 
         public async Task SeedAsync()
         {
             await _context.Database.EnsureCreatedAsync();//Si la base de datos no esta creada automaticamente se creara
             await CheckCountriesAsync();//Validara que exista paises en la Db
+            await CheckRolesAsync();//Chekea los roles
+            await CheckUserAsync("1010", "Jurgen", "Perez", "jurgen1010@hotmail.com", "318 557 0824", "Calle Del Olvido ", UserType.Admin);
+
         }
+
+        private async Task CheckRolesAsync()
+        {
+            await _userHelper.CheckRoleAsync(UserType.Admin.ToString());//Asi no exitan los roles se crea un roll administrador
+            await _userHelper.CheckRoleAsync(UserType.User.ToString());//Crea un roll usuario
+        }
+
+        private async Task<User> CheckUserAsync(
+            string document,
+            string firstName,
+            string lastName,
+            string email,
+            string phone,
+            string address,
+            UserType userType)
+        {
+            User user = await _userHelper.GetUserAsync(email);//Checkea si el user existe
+            if (user == null)
+            {
+                user = new User
+                {
+                    FirstName = firstName,//Me crea el user con los parametros que le indique en la linea 27
+                    LastName = lastName,
+                    Email = email,
+                    UserName = email,
+                    PhoneNumber = phone,
+                    Address = address,
+                    Document = document,
+                    City = _context.Cities.FirstOrDefault(),
+                    UserType = userType
+                };
+
+                await _userHelper.AddUserAsync(user, "123456");//Me crea el user con la clave 123456 en caso de que no exista
+                await _userHelper.AddUserToRoleAsync(user, userType.ToString());//Adicionamos el user al roll administrador
+            }
+
+            return user;
+        }
+
 
         private async Task CheckCountriesAsync()
         {

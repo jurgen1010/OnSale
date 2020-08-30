@@ -6,11 +6,13 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using OnSale.Web.Data;
+using OnSale.Web.Data.Entities;
 using OnSale.Web.Helpers;
 
 namespace OnSale.Web
@@ -34,6 +36,16 @@ namespace OnSale.Web
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
 
+            services.AddIdentity<User, IdentityRole>(cfg =>
+            {
+                cfg.User.RequireUniqueEmail = true;
+                cfg.Password.RequireDigit = false;
+                cfg.Password.RequiredUniqueChars = 0;
+                cfg.Password.RequireLowercase = false;
+                cfg.Password.RequireNonAlphanumeric = false;
+                cfg.Password.RequireUppercase = false;
+            }).AddEntityFrameworkStores<DataContext>();//Por ultimo le indicamos a nuestro servicio que va trabajar mediante nuestro DataContext
+
             //Inyectamos la conexion a la base de datos
             services.AddDbContext<DataContext>(cfg =>
             {
@@ -44,6 +56,7 @@ namespace OnSale.Web
             services.AddScoped<IBlobHelper, BlobHelper>(); //Inyectamos la configuracion al blobStorage (al llamar una instancia de IBlobHelper, retornara un BlobHelper)
             services.AddScoped<IConverterHelper, ConverterHelper>();//Inyectamos el convertidor de CategoryViewModel <=> Category (al llamar una instancia de IConverterHelper, retornara un ConverterHelper)
             services.AddScoped<ICombosHelper, CombosHelper>();
+            services.AddScoped<IUserHelper, UserHelper>();//Iyectamos nuestro helper desde donde vamos administrar nuestros usuarios
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
         }
 
@@ -62,6 +75,7 @@ namespace OnSale.Web
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
+            app.UseAuthentication();//Indicamos a  nuestra configuracion que nuestra aplicacion usara autenticacion
             app.UseCookiePolicy();
 
             app.UseMvc(routes =>
