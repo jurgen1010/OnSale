@@ -35,6 +35,13 @@ namespace OnSale.Web
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
 
+            services.ConfigureApplicationCookie(options =>
+            {
+                options.LoginPath = "/Account/NotAuthorized";//Si se encuentra algun error en el cual no se encuentra el camino direccionamos a la vista NotAuthorized
+                options.AccessDeniedPath = "/Account/NotAuthorized";//Tambien si se quiere acceder a una ruta no autorizada
+            });
+
+
 
             services.AddIdentity<User, IdentityRole>(cfg =>
             {
@@ -85,7 +92,7 @@ namespace OnSale.Web
                 app.UseExceptionHandler("/Home/Error");
                 app.UseHsts();
             }
-
+            app.UseStatusCodePagesWithReExecute("/error/{0}");//Cuando no encontramos una pagina enviaremos el error 404
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseAuthentication();//Indicamos a  nuestra configuracion que nuestra aplicacion usara autenticacion
