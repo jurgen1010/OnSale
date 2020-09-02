@@ -32,6 +32,10 @@ namespace OnSale.Web.Helpers
         Task<IdentityResult> ChangePasswordAsync(User user, string oldPassword, string newPassword);
         Task<IdentityResult> UpdateUserAsync(User user);
         Task<User> GetUserAsync(Guid userId);
+        Task<string> GenerateEmailConfirmationTokenAsync(User user);
+
+        Task<IdentityResult> ConfirmEmailAsync(User user, string token);
+
 
 
 

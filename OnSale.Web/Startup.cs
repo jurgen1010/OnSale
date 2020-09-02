@@ -45,13 +45,16 @@ namespace OnSale.Web
 
             services.AddIdentity<User, IdentityRole>(cfg =>
             {
+                cfg.Tokens.AuthenticatorTokenProvider = TokenOptions.DefaultAuthenticatorProvider;
+                cfg.SignIn.RequireConfirmedEmail = true;//Le indicamos a la aplicacion al iniciar que al registrarse un user requiere confirmacion de email
                 cfg.User.RequireUniqueEmail = true;
                 cfg.Password.RequireDigit = false;
                 cfg.Password.RequiredUniqueChars = 0;
                 cfg.Password.RequireLowercase = false;
                 cfg.Password.RequireNonAlphanumeric = false;
                 cfg.Password.RequireUppercase = false;
-            }).AddEntityFrameworkStores<DataContext>();//Por ultimo le indicamos a nuestro servicio que va trabajar mediante nuestro DataContext
+            }).AddDefaultTokenProviders()//Agregamos la configuracion del token que se enviara a los correos de cada usuario que se registre en la page
+            .AddEntityFrameworkStores<DataContext>();//Por ultimo le indicamos a nuestro servicio que va trabajar mediante nuestro DataContext
 
             //Inyectamos la conexion a la base de datos
             services.AddDbContext<DataContext>(cfg =>
@@ -77,6 +80,7 @@ namespace OnSale.Web
             services.AddScoped<IConverterHelper, ConverterHelper>();//Inyectamos el convertidor de CategoryViewModel <=> Category (al llamar una instancia de IConverterHelper, retornara un ConverterHelper)
             services.AddScoped<ICombosHelper, CombosHelper>();
             services.AddScoped<IUserHelper, UserHelper>();//Iyectamos nuestro helper desde donde vamos administrar nuestros usuarios
+            services.AddScoped<IMailHelper, MailHelper>();//Iyectamos nuestro helper desde donde vamos administrar el envio de correos con token de confirmacion
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
         }
 

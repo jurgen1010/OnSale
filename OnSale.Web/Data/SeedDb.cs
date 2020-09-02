@@ -61,6 +61,10 @@ namespace OnSale.Web.Data
 
                 await _userHelper.AddUserAsync(user, "123456");//Me crea el user con la clave 123456 en caso de que no exista
                 await _userHelper.AddUserToRoleAsync(user, userType.ToString());//Adicionamos el user al roll administrador
+
+                string token = await _userHelper.GenerateEmailConfirmationTokenAsync(user);//Automaticamente creamos el administrador y confimamos el email para quede registrado
+                await _userHelper.ConfirmEmailAsync(user, token);
+
             }
 
             return user;
