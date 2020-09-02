@@ -7,7 +7,6 @@ using OnSale.Web.Data.Entities;
 using OnSale.Web.Helpers;
 using OnSale.Web.Models;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -157,6 +156,110 @@ namespace OnSale.Web.Controllers
             return Json(department.Cities.OrderBy(c => c.Name));//Retornamos todos las ciudades en formato Json
         }
 
+        public async Task<IActionResult> ChangeUser()
+        {
+            User user = await _userHelper.GetUserAsync(User.Identity.Name);
+            if (user == null)
+            {
+                return NotFound();
+            }
+            //Una busqueda hacia arriba el contrario del sentido de la relacion
+            //Busqueme el departamentos donde las ciudades  de dicho departamento tenga por lo menos dicha ciudad
+            Department department = await _context.Departments.FirstOrDefaultAsync(d => d.Cities.FirstOrDefault(c => c.Id == user.City.Id) != null);
+            if (department == null)
+            {
+                department = await _context.Departments.FirstOrDefaultAsync();
+            }
+            //Una busqueda hacia arriba el contrario del sentido de la relacion , buscamos el paises donde cuyo departamento tenga dicho Id que buscamos
+            Country country = await _context.Countries.FirstOrDefaultAsync(c => c.Departments.FirstOrDefault(d => d.Id == department.Id) != null);
+            if (country == null)
+            {
+                country = await _context.Countries.FirstOrDefaultAsync();
+            }
+
+            EditUserViewModel model = new EditUserViewModel//Creamos una nueva vista con todos sus datos
+            {
+                Address = user.Address,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                PhoneNumber = user.PhoneNumber,
+                ImageId = user.ImageId,
+                Cities = _combosHelper.GetComboCities(department.Id),
+                CityId = user.City.Id,
+                Countries = _combosHelper.GetComboCountries(),
+                CountryId = country.Id,
+                DepartmentId = department.Id,
+                Departments = _combosHelper.GetComboDepartments(country.Id),
+                Id = user.Id,
+                Document = user.Document
+            };
+
+            return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ChangeUser(EditUserViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                Guid imageId = model.ImageId;//Creamos un Gui por si hay nueva imagen
+
+                if (model.ImageFile != null)
+                {
+                    imageId = await _blobHelper.UploadBlobAsync(model.ImageFile, "users");
+                }
+
+                User user = await _userHelper.GetUserAsync(User.Identity.Name);
+
+                user.FirstName = model.FirstName;
+                user.LastName = model.LastName;
+                user.Address = model.Address;
+                user.PhoneNumber = model.PhoneNumber;
+                user.ImageId = imageId;
+                user.City = await _context.Cities.FindAsync(model.CityId);
+                user.Document = model.Document;
+
+                await _userHelper.UpdateUserAsync(user);//Actualizamos el user
+                return RedirectToAction("Index", "Home");//Y redireccionamos al index
+            }
+
+            model.Cities = _combosHelper.GetComboCities(model.DepartmentId);//En caso de fallos armamos los combos nuevamente
+            model.Countries = _combosHelper.GetComboCountries();
+            model.Departments = _combosHelper.GetComboDepartments(model.CityId);
+            return View(model);
+        }
+        public IActionResult ChangePassword()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ChangePassword(ChangePasswordViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                var user = await _userHelper.GetUserAsync(User.Identity.Name);
+                if (user != null)
+                {
+                    var result = await _userHelper.ChangePasswordAsync(user, model.OldPassword, model.NewPassword);
+                    if (result.Succeeded)
+                    {
+                        return RedirectToAction("ChangeUser");//Si lo pudo cambiar lo retornamos a la vista ChangeUser
+                    }
+                    else
+                    {
+                        ModelState.AddModelError(string.Empty, result.Errors.FirstOrDefault().Description);//Mostramos modal con error  
+                    }
+                }
+                else
+                {
+                    ModelState.AddModelError(string.Empty, "User no found.");
+                }
+            }
+
+            return View(model);
+        }
     }
 
 }
